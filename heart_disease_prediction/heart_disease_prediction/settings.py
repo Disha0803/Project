@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-dzapxk-zc@izlthxtk*3bh_zbf28w&zm_gqi$sx@nssctit=u("
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['prediction.onrender.com']
 
@@ -123,9 +123,11 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
+
 LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = "/"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+STATIC_ROOT = BASE_DIR / "staticfiles"
