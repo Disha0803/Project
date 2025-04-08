@@ -1,0 +1,110 @@
+{% extends "prediction/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+  .section-title i {
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .card-custom {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .card-custom:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .gradient-card {
+    background: linear-gradient(135deg,rgb(206, 246, 237),rgb(169, 247, 228));
+    border-left: 5px solid #26a69a;
+  }
+
+  .emergency-box {
+    background: linear-gradient(to right, #fff0f0, #ffe5e5);
+    border-left: 5px solid #dc3545;
+  }
+
+  .tip-day-box {
+    background: linear-gradient(to right, #fff9e6, #fff3cd);
+    border-left: 5px solid #ffc107;
+  }
+
+  .list-icon {
+    margin-right: 0.5rem;
+  }
+
+  .card-title i {
+    margin-right: 8px;
+  }
+</style>
+
+<div class="container py-5">
+  <h3 class="mb-5 section-title">
+    <i class="fas fa-stethoscope text-warning me-2"></i>
+    <strong>Health Recommendations</strong>
+  </h3>
+
+  <div class="row">
+    <!-- Left Column: Tips -->
+    <div class="col-md-8">
+      <!-- General Tips -->
+      <div class="card card-custom gradient-card p-4 mb-4 shadow-sm">
+        <h5 class="text-success mb-3"><i class="fas fa-seedling me-2"></i>General Tips</h5>
+        <ul class="mb-0 ps-3">
+          {% for tip in general_tips %}
+            <li class="mb-2"><i class="fas fa-check-circle text-success list-icon"></i>{{ tip }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Emergency Recommendations -->
+      {% if emergency_tips %}
+        <div class="card card-custom emergency-box p-4 mb-4 shadow-sm">
+          <h5 class="text-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Emergency Recommendations</h5>
+          <ul class="mb-0 ps-3">
+            {% for tip in emergency_tips %}
+              <li class="mb-2 text-danger"><i class="fas fa-stethoscope list-icon"></i>{{ tip }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <div class="alert alert-info shadow-sm">
+          <i class="fas fa-info-circle me-2"></i>No urgent health issues detected from your last entry.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Emergency + Tip of the Day -->
+    <div class="col-md-4">
+      <!-- Emergency Contact Card -->
+      <div class="card card-custom text-white bg-danger mb-5 shadow-sm" style="padding: 10px;">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-ambulance"></i>In Case of Emergency</h5>
+          <p class="card-text">Call your doctor or nearest hospital immediately. Your health and safety are our top priority. Kindly don't ignore. </p>
+          <a href="tel:108" class="btn btn-light btn-sm w-100 mt-2">
+            <i class="fas fa-phone-alt me-1"></i>Call Emergency: 108
+          </a>
+        </div>
+      </div>
+
+      <!-- Tip of the Day -->
+      <div class="card card-custom tip-day-box mb-4 shadow-sm" style="margin-top: -21px;">
+        <div class="card-body text-dark">
+          <h6 class="card-title"><i class="fas fa-lightbulb text-warning"></i>Tip of the Day</h6>
+          <p class="mb-0">{{ tip_of_the_day }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

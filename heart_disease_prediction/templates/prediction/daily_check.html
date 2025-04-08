@@ -1,0 +1,304 @@
+{% extends "prediction/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  form .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .form-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #6c757d;
+    z-index: 2;
+  }
+
+  .input-icon-wrapper {
+    position: relative;
+  }
+
+  .input-icon-wrapper input {
+    padding-left: 2.2rem !important;
+  }
+
+  .form-chip {
+    font-size: 0.7rem;
+    background-color: #f1f3f5;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.4rem;
+    display: inline-block;
+  }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .daily-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .tip-card {
+    background-image: linear-gradient( 178.7deg,  rgba(126,184,253,1) 5.6%, rgba(2,71,157,1) 95.3% );
+    color: white;
+    border-radius: 1.2rem;
+    padding: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+  
+  .tip-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    z-index: -1;
+    border-radius: inherit;
+    background-image: linear-gradient( 178.7deg,  rgba(8, 9, 11, 0.25) 5.6%, rgba(6, 59, 94, 0.69) 95.3% );
+  }
+  
+  .tip-card:hover {
+    transform: scale(1.04);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+  }
+  
+  .tip-card p {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  
+  
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<div class="container py-4" style="min-height: 100vh;">
+  <div class="row g-4 align-items-stretch">
+    <!-- Left: Form -->
+    <div class="col-lg-6">
+      <div class="card shadow rounded-4 daily-card p-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" width="36" class="me-2">
+            <div>
+              <div class="fw-bold">Hello, {{ user.first_name|default:"there" }} 👋</div>
+              <small class="text-muted">Here's your daily check-in</small>
+            </div>
+          </div>
+
+          <h5 class="text-primary mb-3">📝 Daily Health Check</h5>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3 input-icon-wrapper">
+              <i class="fas fa-heartbeat form-icon"></i>
+              {{ form.heart_rate }}
+            </div>
+            <div class="mb-3 input-icon-wrapper">
+              <i class="fas fa-lungs form-icon"></i>
+              {{ form.spo2 }}
+            </div>
+            <div class="mb-3 input-icon-wrapper">
+              <i class="fas fa-running form-icon"></i>
+              {{ form.exercise_minutes }}
+            </div>
+            <button type="submit" class="btn w-100" style="background-image: linear-gradient( 178.7deg,  rgba(126,184,253,1) 5.6%, rgba(2,71,157,1) 95.3% ); color: white">SUBMIT</button>
+          </form>
+
+          <div class="text-muted mt-3" style="font-size: 0.75rem;">
+            💡 Tip of the day: "{{ health_tip }}"
+          </div>
+
+          <!-- Tip Pills -->
+          <!-- Tip Pills -->
+
+          <div class="row mt-5">
+            {% for tip in all_tips %}
+            <div class="col-md-4 mb-3">
+              <div class="card tip-card shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center justify-content-center text-center">
+                  <p class="mb-0 fw-semibold text-white">{{ tip }}</p>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Right: Charts -->
+    <div class="col-lg-6 d-flex flex-column gap-3">
+      <!-- Donut Chart -->
+      <div class="card shadow rounded-4">
+        <div class="card-body px-4 py-3">
+          <h6 class="text-info mb-3 d-flex align-items-center" style="font-size: 0.95rem; margin-left: 150px;">
+            🏃 <span class="ms-2">Daily Progress</span>
+          </h6>
+          <div class="d-flex align-items-center justify-content-center gap-4">
+            <div style="height: 120px; width: 120px;">
+              <canvas id="exercisePieChart" width="120" height="120"></canvas>
+            </div>
+            <div class="text-start">
+              <div id="exercisePercentage" class="fw-bold" style="font-size: 1.6rem; color: #0d6efd;">0%</div>
+              <div id="exerciseStatus" class="text-muted" style="font-size: 0.9rem;">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+      <!-- Heart Rate Chart -->
+      <div class="card shadow rounded-4">
+        <div class="card-body p-3">
+          <h6 class="text-center text-danger mb-2" style="font-size: 0.9rem;">❤️ Heart Rate</h6>
+          <canvas id="heartRateChart" height="90"></canvas>
+        </div>
+      </div>
+
+      <!-- SpO2 Chart -->
+      <div class="card shadow rounded-4">
+        <div class="card-body p-3">
+          <h6 class="text-center text-success mb-2" style="font-size: 0.9rem;">🫁 SpO₂</h6>
+          <canvas id="spo2Chart" height="90"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+  const labels = {{ labels|safe }};
+  const heartRateData = {{ heart_rate_data|safe }};
+  const spo2Data = {{ spo2_data|safe }};
+  const percentDone = {{ percent_done }};
+
+  new Chart(document.getElementById('heartRateChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Heart Rate',
+        data: heartRateData,
+        borderColor: '#dc3545',
+        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: false } }
+    }
+  });
+
+  new Chart(document.getElementById('spo2Chart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'SpO₂ (%)',
+        data: spo2Data,
+        borderColor: '#198754',
+        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: false } }
+    }
+  });
+
+  {% comment %} const ctx = document.getElementById('exercisePieChart').getContext('2d');
+  const centerText = document.getElementById('exercisePercentage');
+  const statusText = document.getElementById('exerciseStatus');
+  const finalValue = percentDone; {% endcomment %}
+
+  
+  
+
+    // Use string and parse it safely
+  const finalValue = parseInt("{{ percent_done|default:'0' }}");
+  
+  console.log("finalValue:", finalValue); // DEBUG - Check browser console
+  
+  const ctx = document.getElementById('exercisePieChart').getContext('2d');
+  const centerText = document.getElementById('exercisePercentage');
+  const statusText = document.getElementById('exerciseStatus');
+  
+  centerText.textContent = finalValue + '%';
+  
+  let progressColor = '#0d6efd'; // Default
+  let statusMessage = 'Keep it up!';
+  
+    if (finalValue < 20) {
+      progressColor = '#dc3545';
+      statusMessage = "Let’s move! 💪";
+    } else if (finalValue < 40) {
+      progressColor = '#ffc107';
+      statusMessage = "Keep going!";
+    } else if (finalValue < 70) {
+      progressColor = '#0d6efd';
+      statusMessage = "Doing well!";
+    } else if (finalValue < 100) {
+      progressColor = '#28a745';
+      statusMessage = "Almost there! 🔥";
+    } else {
+      progressColor = '#198754';
+      statusMessage = "Goal achieved! 🏆";
+    }
+  
+    statusText.textContent = statusMessage;
+    centerText.style.color = progressColor;
+  
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Done', 'Remaining'],
+        datasets: [{
+          data: [finalValue, 100 - finalValue],
+          backgroundColor: [progressColor, '#f1f1f1'],
+          borderWidth: 1,
+        }]
+      },
+      options: {
+        cutout: '70%',
+        animation: {
+          duration: 1200,
+          easing: 'easeOutCubic',
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+ 
+  
+</script>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "prediction/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .upload-container {
+    margin-top: -10px;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .upload-card {
+    border: none;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .upload-heading {
+    font-weight: 700;
+    color: #0d6efd;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  input[type="file"] {
+    display: block;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    width: 100%;
+    background-color: #f8f9fa;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 0.5rem;
+  }
+
+  .alert-info {
+    background-color: #e7f3fe;
+    border-left: 6px solid #0d6efd;
+    color: #084298;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .history-heading {
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .list-group-item {
+    border: none;
+    background-color: #f8f9fa;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .list-group {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+  }
+  
+  .list-group::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .list-group::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+  }
+  .upload-card,
+.shadow-sm {
+  transition: transform 0.3s ease;
+}
+
+.upload-card:hover,
+.shadow-sm:hover {
+  transform: scale(1.02);
+}
+.history-high {
+  background-color: rgba(220, 53, 69, 0.1); /* transparent red */
+  border-left: 4px solid #dc3545;
+}
+
+.history-low {
+  background-color: rgba(40, 167, 69, 0.1); /* transparent green */
+  border-left: 4px solid #28a745;
+}
+.section-heading {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #343a40;
+  {% comment %} background: linear-gradient(90deg, #e0f7fa, #f1f8e9); {% endcomment %}
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  display: inline-block;
+  animation: fadeInSlide 0.5s ease-in-out;
+  {% comment %} box-shadow: 0 4px 8px rgba(0,0,0,0.05); {% endcomment %}
+}
+
+.highlighted-text {
+  color: #0d6efd;
+  font-weight: 800;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+  
+</style>
+
+<div class="container upload-container">
+  <div class="row justify-content-center align-items-start" style="margin-top: -40px;">
+    <!-- Left Side: Upload Card -->
+    <div class="col-md-7">
+      <div class="card upload-card">
+        <div class="card-body p-5">
+          <h3 class="upload-heading">
+            <i class="fas fa-notes-medical me-2" style="color: #0d6efd; font-size: 1.5rem;"></i>
+            Upload Your Medical Report
+          </h3>
+          
+          
+          
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label">{{ form.report.label }}</label>
+              {{ form.report }}
+            </div>
+            <button type="submit" class="btn btn-primary">🔍 Predict</button>
+          </form>
+
+          {% if prediction %}
+          <div class="alert alert-info mt-4">
+            <strong>Prediction Result:</strong>
+            <span>{{ prediction }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Timeline Card -->
+    <div class="col-md-5">
+      <div class="card shadow-sm" style="border-radius: 1.5rem;">
+        <div class="card-body p-4">
+          <h5 class="section-heading text-center mb-3">
+            <i class="fas fa-history me-2 text-primary"></i>
+            Your <span class="highlighted-text">Last Predictions</span>
+          </h5>
+          
+
+          <div style="max-height: 260px; overflow-y: auto;">
+            {% if history %}
+            <ul class="list-group">
+              {% for item in history %}
+              <li class="list-group-item d-flex justify-content-between align-items-center {% if 'High' in item.result %}history-high{% else %}history-low{% endif %}">
+                <span>{{ item.result }}</span>
+                <small class="text-muted">{{ item.timestamp|date:"M d, Y H:i" }}</small>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-center text-muted">No history yet.</p>
+            {% endif %}
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'download_history' %}" class="btn btn-outline-primary btn-sm">
+              ⬇ Download
+            </a>
+            <a href="{% url 'clear_history' %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to clear history?');">
+              🗑 Clear History
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    {% if prediction %}
+      // Clear file input
+      const fileInput = document.querySelector('input[type="file"]');
+      if (fileInput) {
+        fileInput.value = '';
+      }
+
+      // Hide prediction result after 5 seconds
+      setTimeout(() => {
+        const alertBox = document.querySelector('.alert-info');
+        if (alertBox) {
+          alertBox.style.display = 'none';
+        }
+      }, 1000);
+    {% endif %}
+  });
+</script>
+
+
+{% endblock %}

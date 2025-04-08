@@ -1,0 +1,186 @@
+{% extends "prediction/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+  .health-container {
+    padding: 4rem 2rem;
+  }
+
+  .health-card {
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    background-color: #fff;
+    padding: 2.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #333;
+  }
+
+  .form-control {
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    background-color: #0d6efd;
+  }
+
+  .chart-container {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background-color: #f9f9f9;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    margin-bottom: 2rem;
+  }
+
+  .icon-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chart-title {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #444;
+  }
+
+  @media (max-width: 991px) {
+    .form-section,
+    .charts-section {
+      margin-bottom: 2rem;
+    }
+  }
+</style>
+<div class="container health-container">
+  <div class="row">
+    <!-- Left: Form -->
+    <div class="col-lg-5 form-section">
+      <div class="health-card">
+        <h4 class="text-center mb-4"><i class="fas fa-notes-medical me-2"></i>Weekly Health Check</h4>
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label icon-label" for="{{ form.bp.id_for_label }}">
+              <i class="fas fa-heartbeat text-danger"></i> Blood Pressure (mmHg)
+            </label>
+            {{ form.bp|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label icon-label" for="{{ form.cholesterol.id_for_label }}">
+              <i class="fas fa-bacon text-warning"></i> Cholesterol (mg/dL)
+            </label>
+            {{ form.cholesterol|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label icon-label" for="{{ form.sugar_level.id_for_label }}">
+              <i class="fas fa-cube text-primary"></i> Sugar Level (mg/dL)
+            </label>
+            {{ form.sugar_level|add_class:"form-control" }}
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-3">
+            <i class="fas fa-check-circle me-2"></i>Submit
+          </button>
+        </form>
+      </div>
+      <div class="mt-4 p-4 bg-warning-subtle border-start border-warning rounded shadow-sm">
+        <h6 class="text-dark"><i class="fas fa-fire-alt me-2 text-warning"></i>Mini Challenge</h6>
+        <p class="text-dark">🚶‍♂️ Walk 5,000+ steps daily this week!</p>
+      </div>
+      <div class="mt-4 p-4 bg-success-subtle border-start border-success rounded shadow-sm">
+        <h6 class="text-success"><i class="fas fa-heartbeat me-2"></i>Did You Know?</h6>
+        <p class="text-muted">Smiling boosts your immune system. So keep smiling 😄!</p>
+      </div>
+      <div class="mt-4 p-4 bg-light rounded border-start border-primary shadow-sm">
+        <h6 class="text-primary mb-2"><i class="fas fa-lightbulb me-2"></i>Weekly Health Tip</h6>
+        <p class="mb-1 text-muted">🥦 Eat more greens! A diet rich in vegetables helps manage cholesterol and sugar levels.</p>
+        <small class="text-secondary">Updated every week</small>
+      </div>
+    </div>
+
+    <!-- Right: Charts -->
+    <div class="col-lg-7 charts-section">
+      <div class="chart-container">
+        <h5 class="chart-title">📈 Blood Pressure Trend</h5>
+        <canvas id="bpChart" height="100"></canvas>
+      </div>
+      <div class="chart-container">
+        <h5 class="chart-title">🥓 Cholesterol Trend</h5>
+        <canvas id="cholesterolChart" height="100"></canvas>
+      </div>
+      <div class="chart-container">
+        <h5 class="chart-title">🍬 Sugar Level Trend</h5>
+        <canvas id="sugarChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = {{ dates|safe }};
+  const bpData = {{ bp|safe }};
+  const cholesterolData = {{ cholesterol|safe }};
+  const sugarData = {{ sugar|safe }};
+
+  new Chart(document.getElementById('bpChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'BP',
+        data: bpData,
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    }
+  });
+
+  new Chart(document.getElementById('cholesterolChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Cholesterol',
+        data: cholesterolData,
+        borderColor: '#dc3545',
+        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    }
+  });
+
+  new Chart(document.getElementById('sugarChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Sugar',
+        data: sugarData,
+        borderColor: '#198754',
+        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    }
+  });
+</script>
+{% endblock %}
