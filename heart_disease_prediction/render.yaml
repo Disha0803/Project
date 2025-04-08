@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: dearheart-tab4
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn heart_disease_prediction.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: heart_disease_prediction.settings
