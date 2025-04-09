@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-dzapxk-zc@izlthxtk*3bh_zbf28w&zm_gqi$sx@nssctit=u(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['dear-heart-tab4.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['dearheart-tab4.onrender.com', 'localhost', '127.0.0.1']
 
 
 
