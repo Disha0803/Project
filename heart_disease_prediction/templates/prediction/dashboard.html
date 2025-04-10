@@ -146,7 +146,8 @@
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
     padding: 16px;
-    width: fit-content;
+    min-width: 220px;       /* 👈 Ensures enough space */
+    max-width: 300px;       /* 👈 Optional: prevents overflow */
     height: fit-content;
     color: white;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
@@ -159,6 +160,7 @@
     margin-top: 20px;
     align-items: flex-start;
   }
+  
   
   
   
