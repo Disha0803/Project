@@ -146,17 +146,20 @@
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
     padding: 16px;
-    width: fit-content;        /* Let it fit the content */
-    height: fit-content;       /* Keep it short! */
+    width: fit-content;
+    height: fit-content;
     color: white;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.15);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     font-family: 'Segoe UI', sans-serif;
-    margin: 20px;
+    margin-left: 20px;
+    margin-top: 20px;
+    align-items: flex-start;
   }
+  
   
   
   .glass-box h3 {
@@ -189,18 +192,16 @@
   }
   
   .glass-button {
-    margin-top: auto;
     background-color: rgba(255, 255, 255, 0.25);
     border: none;
     color: white;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 20px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 13px;
     cursor: pointer;
+    align-self: flex-start;  /* prevent stretching */
   }
+  
   
   .glass-button span {
     margin-left: 6px;
