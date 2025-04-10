@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -123,7 +124,7 @@ STATIC_DIR = BASE_DIR/'static'
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
-
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = "/"
@@ -131,4 +132,3 @@ LOGOUT_REDIRECT_URL = "/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-STATIC_ROOT = BASE_DIR / "staticfiles"
